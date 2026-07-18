@@ -63,9 +63,20 @@ function Header({ view, setView }) {
   return (
     <header style={{ background: "#002D72", color: "#fff", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 62, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 14px rgba(0,0,0,0.3)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-        <div style={{ width: 36, height: 36, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.35)", overflow: "hidden", display: "grid", gridTemplateColumns: "1fr 1fr", flexShrink: 0 }}>
-          <div style={{ background: "#002D72" }} /><div style={{ background: "#CE1126" }} />
-          <div style={{ background: "#CE1126" }} /><div style={{ background: "#002D72" }} />
+        <div style={{ width: 38, height: 38, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
+          <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" width="38" height="38">
+            {/* Cuadrantes */}
+            <rect x="0" y="0" width="19" height="19" fill="#002D72"/>
+            <rect x="19" y="0" width="19" height="19" fill="#CE1126"/>
+            <rect x="0" y="19" width="19" height="19" fill="#CE1126"/>
+            <rect x="19" y="19" width="19" height="19" fill="#002D72"/>
+            {/* Cruz blanca */}
+            <rect x="16" y="0" width="6" height="38" fill="white"/>
+            <rect x="0" y="16" width="38" height="6" fill="white"/>
+            {/* Escudo simplificado - círculo azul con borde */}
+            <circle cx="19" cy="19" r="5" fill="#002D72" stroke="white" strokeWidth="1"/>
+            <text x="19" y="22" textAnchor="middle" fontSize="6" fill="white" fontWeight="bold">RD</text>
+          </svg>
         </div>
         <div>
           <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 0.2, lineHeight: 1.2 }}>Consulado General RD</div>
@@ -186,6 +197,66 @@ function ExpedienteInvestigacion({ exp }) {
   );
 }
 
+function ExpedienteIncompleto({ exp }) {
+  return (
+    <div style={{ ...S.card, marginBottom: 16, animation: "fadeUp 0.3s ease" }}>
+      <div style={{ background: "#BF360C", padding: "18px 22px", color: "#fff" }}>
+        <span style={{ background: exp.tipoBg, color: exp.tipoColor, borderRadius: 10, padding: "3px 10px", fontSize: 11, fontWeight: 700, marginBottom: 8, display: "inline-block" }}>{exp.tipoSolicitud}</span>
+        <div style={{ fontSize: 19, fontWeight: 800 }}>{exp.nombre}</div>
+      </div>
+      <div style={{ padding: "18px 22px" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#FFEBEE", color: "#B71C1C", borderRadius: 20, padding: "6px 14px", fontSize: 13, fontWeight: 700, marginBottom: 16 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#EF5350", display: "inline-block" }} />
+          Documentos incompletos
+        </div>
+        {exp.notaConsulado ? (
+          <div style={{ background: "#FFF3E0", borderRadius: 10, padding: "14px 18px", fontSize: 13, color: "#455A64", borderLeft: "3px solid #EF5350", lineHeight: 1.65, marginBottom: 14 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#B71C1C", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Documentos faltantes</div>
+            {exp.notaConsulado}
+          </div>
+        ) : (
+          <div style={{ background: "#FFF3E0", borderRadius: 10, padding: "14px 18px", fontSize: 13, color: "#455A64", borderLeft: "3px solid #EF5350", lineHeight: 1.65, marginBottom: 14 }}>
+            Comuníquese con el Consulado para conocer los documentos faltantes.
+          </div>
+        )}
+        <div style={{ padding: "12px 14px", background: "#F5F7FA", borderRadius: 8, fontSize: 13, color: "#546E7A" }}>
+          Contáctenos: <strong>WhatsApp (470) 309-4360</strong> · <strong>consuldomatl@gmail.com</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExpedientePendientePago({ exp }) {
+  return (
+    <div style={{ ...S.card, marginBottom: 16, animation: "fadeUp 0.3s ease" }}>
+      <div style={{ background: "#E65100", padding: "18px 22px", color: "#fff" }}>
+        <span style={{ background: exp.tipoBg, color: exp.tipoColor, borderRadius: 10, padding: "3px 10px", fontSize: 11, fontWeight: 700, marginBottom: 8, display: "inline-block" }}>{exp.tipoSolicitud}</span>
+        <div style={{ fontSize: 19, fontWeight: 800 }}>{exp.nombre}</div>
+      </div>
+      <div style={{ padding: "18px 22px" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#FFF3E0", color: "#E65100", borderRadius: 20, padding: "6px 14px", fontSize: 13, fontWeight: 700, marginBottom: 16 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#FF9800", display: "inline-block" }} />
+          Pendiente de pago
+        </div>
+        {exp.notaConsulado ? (
+          <div style={{ background: "#FFF8E1", borderRadius: 10, padding: "14px 18px", fontSize: 13, color: "#455A64", borderLeft: "3px solid #FF9800", lineHeight: 1.65, marginBottom: 14 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#E65100", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Información de pago</div>
+            {exp.notaConsulado}
+          </div>
+        ) : (
+          <div style={{ background: "#FFF8E1", borderRadius: 10, padding: "14px 18px", fontSize: 13, color: "#455A64", borderLeft: "3px solid #FF9800", lineHeight: 1.65, marginBottom: 14 }}>
+            Comuníquese con el Consulado para conocer los detalles del pago pendiente.
+          </div>
+        )}
+        <div style={{ padding: "12px 14px", background: "#F5F7FA", borderRadius: 8, fontSize: 13, color: "#546E7A" }}>
+          Contáctenos: <strong>WhatsApp (470) 309-4360</strong> · <strong>consuldomatl@gmail.com</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ExpedienteAnulado({ exp }) {
   return (
     <div style={{ ...S.card, marginBottom: 16, animation: "fadeUp 0.3s ease" }}>
@@ -270,6 +341,8 @@ function PasaporteView() {
 
       {result && result.expedientes && result.expedientes.map(exp => {
         if (exp.esInvestigacion) return <ExpedienteInvestigacion key={exp.id} exp={exp} />;
+        if (exp.esIncompleto) return <ExpedienteIncompleto key={exp.id} exp={exp} />;
+        if (exp.esPendientePago) return <ExpedientePendientePago key={exp.id} exp={exp} />;
         if (exp.esAnulado) return <ExpedienteAnulado key={exp.id} exp={exp} />;
         return <ExpedienteCard key={exp.id} exp={exp} />;
       })}
@@ -315,7 +388,7 @@ function NoticiasView() {
   return (
     <div style={{ maxWidth: 660, margin: "0 auto", padding: "32px 18px" }}>
       <h1 style={{ fontSize: 22, fontWeight: 800, color: "#002D72", margin: "0 0 5px" }}>Noticias y avisos</h1>
-      <p style={{ color: "#546E7A", fontSize: 14, margin: "0 0 22px" }}>Información oficial del Consulado General en Atlanta.</p>
+      <p style={{ color: "#546E7A", fontSize: 14, margin: "0 0 22px" }}>Información oficial del Consulado General de la República Dominicana en Atlanta.</p>
 
       {loading && (
         <div style={{ textAlign: "center", padding: "48px 0", color: "#90A4AE" }}>
