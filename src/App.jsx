@@ -135,8 +135,15 @@ function ExpedienteCard({ exp }) {
           </div>
         )}
 
+        {/* Mensaje especial FedEx */}
+        {entregado && exp.estadoRaw === "Enviado via FedEx" && (
+          <div style={{ background: "#F3E5F5", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#4A148C", marginBottom: 16, borderLeft: "3px solid #9C27B0" }}>
+            📦 Su pasaporte fue enviado vía FedEx a su dirección registrada. Esté pendiente del tracking de su envío.
+          </div>
+        )}
+
         {/* Fecha entrega si está entregado */}
-        {entregado && exp.fechaEntrega && (
+        {entregado && exp.estadoRaw === "Entregado" && exp.fechaEntrega && (
           <div style={{ background: "#E8F5E9", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#1B5E20", marginBottom: 16 }}>
             ✅ Entregado el {exp.fechaEntrega}
           </div>
