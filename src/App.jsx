@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // ─── CONFIGURACIÓN ───────────────────────────────────────────────────────────
 // Cuando el backend esté en Railway, reemplazar esta URL con la URL real
@@ -84,37 +84,150 @@ function Header({ view, setView }) {
 }
 
 // ─── VISTA PASAPORTE ──────────────────────────────────────────────────────────
+function ExpedienteCard({ exp }) {
+  const cfg = PASO_CONFIG[(exp.paso || 1) - 1] || PASO_CONFIG[0];
+  const entregado = exp.paso === 5;
+
+  return (
+    <div style={{ ...S.card, marginBottom: 16, animation: "fadeUp 0.3s ease" }}>
+      {/* Cabecera */}
+      <div style={{ background: "#002D72", padding: "18px 22px", color: "#fff" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+          <span style={{ background: exp.tipoBg, color: exp.tipoColor, borderRadius: 10, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>
+            {exp.tipoSolicitud}
+          </span>
+          {exp.esFedEx && (
+            <span style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderRadius: 10, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>
+              📦 FedEx
+            </span>
+          )}
+          {!exp.esFedEx && exp.modoEntrega && (
+            <span style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderRadius: 10, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>
+              🏢 Retiro en sede
+            </span>
+          )}
+        </div>
+        <div style={{ fontSize: 19, fontWeight: 800, lineHeight: 1.25 }}>{exp.nombre}</div>
+      </div>
+
+      <div style={{ padding: "18px 22px" }}>
+        {/* Badge estado */}
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: cfg.bg, color: cfg.color, borderRadius: 20, padding: "6px 14px", fontSize: 13, fontWeight: 700, marginBottom: 20 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: cfg.dot, display: "inline-block" }} />
+          {exp.estadoLabel}
+        </div>
+
+        {/* Aviso expediente vinculado */}
+        {exp.expedientePrincipal && (
+          <div style={{ background: "#E8F5E9", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#2E7D32", marginBottom: 16, borderLeft: "3px solid #4CAF50" }}>
+            📎 Su envío está coordinado junto al expediente de <strong>{exp.expedientePrincipal}</strong>
+          </div>
+        )}
+
+        {/* Fecha entrega si está entregado */}
+        {entregado && exp.fechaEntrega && (
+          <div style={{ background: "#E8F5E9", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#1B5E20", marginBottom: 16 }}>
+            ✅ Entregado el {exp.fechaEntrega}
+          </div>
+        )}
+
+        {/* Pasos */}
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#90A4AE", textTransform: "uppercase", letterSpacing: 0.9, marginBottom: 14 }}>Progreso</div>
+        {PASOS.map((paso, i) => {
+          const pasoNum = i + 1;
+          const done = entregado ? true : pasoNum <= exp.paso;
+          const active = !entregado && pasoNum === exp.paso;
+          const stepCfg = PASO_CONFIG[i];
+          return (
+            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                <div style={{ width: 26, height: 26, borderRadius: "50%", background: done ? (active ? stepCfg.dot : "#002D72") : "#EEEEEE", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, border: active ? `3px solid ${stepCfg.color}` : "3px solid transparent", boxSizing: "border-box" }}>
+                  {done && !active ? "✓" : active ? "●" : ""}
+                </div>
+                {i < PASOS.length - 1 && <div style={{ width: 2, height: 26, background: done && !active ? "#002D72" : "#EEEEEE", margin: "2px 0" }} />}
+              </div>
+              <div style={{ paddingTop: 3 }}>
+                <div style={{ fontSize: 13, color: done ? "#263238" : "#BDBDBD", fontWeight: active ? 700 : done ? 500 : 400, marginBottom: 22, display: "flex", alignItems: "center", gap: 8 }}>
+                  {paso}
+                  {active && <span style={{ background: stepCfg.bg, color: stepCfg.color, borderRadius: 8, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>Actual</span>}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ExpedienteInvestigacion({ exp }) {
+  return (
+    <div style={{ ...S.card, marginBottom: 16, animation: "fadeUp 0.3s ease" }}>
+      <div style={{ background: "#E65100", padding: "18px 22px", color: "#fff" }}>
+        <span style={{ background: exp.tipoBg, color: exp.tipoColor, borderRadius: 10, padding: "3px 10px", fontSize: 11, fontWeight: 700, marginBottom: 8, display: "inline-block" }}>{exp.tipoSolicitud}</span>
+        <div style={{ fontSize: 19, fontWeight: 800 }}>{exp.nombre}</div>
+      </div>
+      <div style={{ padding: "18px 22px" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#FFF3E0", color: "#BF360C", borderRadius: 20, padding: "6px 14px", fontSize: 13, fontWeight: 700, marginBottom: 16 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#FF9800", display: "inline-block" }} />
+          Su expediente requiere atención
+        </div>
+        {exp.notaConsulado && (
+          <div style={{ background: "#FFF8E1", borderRadius: 10, padding: "14px 18px", fontSize: 13, color: "#455A64", borderLeft: "3px solid #FF9800", lineHeight: 1.65, marginBottom: 14 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#FF9800", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Mensaje del Consulado</div>
+            {exp.notaConsulado}
+          </div>
+        )}
+        <div style={{ padding: "12px 14px", background: "#F5F7FA", borderRadius: 8, fontSize: 13, color: "#546E7A" }}>
+          Contáctenos: <strong>WhatsApp (470) 309-4360</strong> · <strong>consuldomatl@gmail.com</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExpedienteAnulado({ exp }) {
+  return (
+    <div style={{ ...S.card, marginBottom: 16, animation: "fadeUp 0.3s ease" }}>
+      <div style={{ background: "#37474F", padding: "18px 22px", color: "#fff" }}>
+        <div style={{ fontSize: 19, fontWeight: 800 }}>{exp.nombre}</div>
+      </div>
+      <div style={{ padding: "18px 22px" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#ECEFF1", color: "#546E7A", borderRadius: 20, padding: "6px 14px", fontSize: 13, fontWeight: 700, marginBottom: 14 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#90A4AE", display: "inline-block" }} />
+          Expediente anulado
+        </div>
+        <div style={{ fontSize: 13, color: "#546E7A", lineHeight: 1.6 }}>
+          Comuníquese con el Consulado: <strong>(470) 309-4360</strong> · <strong>consuldomatl@gmail.com</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PasaporteView() {
-  const [cedula, setCedula] = useState("");
-  const [result, setResult] = useState(null);
+  const [cedula, setCedula]   = useState("");
+  const [result, setResult]   = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError]   = useState("");
+  const [error, setError]     = useState("");
   const [buscado, setBuscado] = useState(false);
 
   async function consultar() {
     if (!cedula.trim()) return;
     setLoading(true); setError(""); setResult(null); setBuscado(true);
-
     try {
-      const res = await fetch(`${BACKEND_URL}/api/pasaporte/${encodeURIComponent(cedula.trim())}`);
+      const res  = await fetch(`${BACKEND_URL}/api/pasaporte/${encodeURIComponent(cedula.trim())}`);
       const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "No se pudo consultar. Intente nuevamente.");
-      } else {
-        setResult(data);
-      }
+      if (!res.ok) setError(data.error || "No se pudo consultar. Intente nuevamente.");
+      else setResult(data);
     } catch {
       setError("No se pudo conectar con el servidor. Verifique su conexión e intente nuevamente.");
     }
     setLoading(false);
   }
 
-  const cfg = result ? PASO_CONFIG[(result.paso || 1) - 1] || PASO_CONFIG[0] : null;
-
   return (
     <div style={{ maxWidth: 600, margin: "0 auto", padding: "32px 18px" }}>
-      {/* Hero */}
       <div style={{ textAlign: "center", marginBottom: 28 }}>
         <div style={{ fontSize: 44, marginBottom: 10 }}>🛂</div>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: "#002D72", margin: "0 0 7px" }}>Estado de su pasaporte</h1>
@@ -123,24 +236,18 @@ function PasaporteView() {
         </p>
       </div>
 
-      {/* Buscador */}
       <div style={{ ...S.card, padding: 22, marginBottom: 18 }}>
         <label style={S.label}>Número de cédula dominicana</label>
         <div style={{ display: "flex", gap: 8 }}>
-          <input
-            value={cedula}
-            onChange={e => setCedula(e.target.value)}
+          <input value={cedula} onChange={e => setCedula(e.target.value)}
             onKeyDown={e => e.key === "Enter" && consultar()}
             placeholder="Ej: 402-0550231-2"
             style={{ ...S.input, flex: 1 }}
             onFocus={e => e.target.style.borderColor = "#002D72"}
             onBlur={e => e.target.style.borderColor = "#CFD8DC"}
           />
-          <button
-            onClick={consultar}
-            disabled={loading || !cedula.trim()}
-            style={{ background: (loading || !cedula.trim()) ? "#B0BEC5" : "#002D72", color: "#fff", border: "none", borderRadius: 8, padding: "11px 20px", fontSize: 14, fontWeight: 700, cursor: (loading || !cedula.trim()) ? "default" : "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}
-          >
+          <button onClick={consultar} disabled={loading || !cedula.trim()}
+            style={{ background: (loading || !cedula.trim()) ? "#B0BEC5" : "#002D72", color: "#fff", border: "none", borderRadius: 8, padding: "11px 20px", fontSize: 14, fontWeight: 700, cursor: (loading || !cedula.trim()) ? "default" : "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
             {loading ? "Buscando…" : "Consultar"}
           </button>
         </div>
@@ -149,113 +256,24 @@ function PasaporteView() {
         </p>
       </div>
 
-      {/* Error */}
       {error && (
         <div style={{ background: "#FFF3E0", border: "1px solid #FFCC80", borderRadius: 10, padding: "14px 18px", color: "#BF360C", fontSize: 14, marginBottom: 18, lineHeight: 1.5 }}>
           ⚠ {error}
         </div>
       )}
 
-      {/* Resultado normal */}
-      {result && !result.esInvestigacion && !result.esAnulado && (
-        <div style={{ ...S.card, animation: "fadeUp 0.3s ease" }}>
-          {/* Cabecera */}
-          <div style={{ background: "#002D72", padding: "20px 24px", color: "#fff" }}>
-            {result.noExp && (
-              <div style={{ display: "inline-flex", alignItems: "center", background: "rgba(255,255,255,0.14)", borderRadius: 10, padding: "3px 10px", fontSize: 11, fontWeight: 700, marginBottom: 8, letterSpacing: 0.3 }}>
-                Expediente {result.noExp}{result.tipo ? ` · ${result.tipo}` : ""}
-              </div>
-            )}
-            <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.25 }}>{result.nombre}</div>
-          </div>
-
-          <div style={{ padding: "22px 24px" }}>
-            {/* Badge */}
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: cfg.bg, color: cfg.color, borderRadius: 20, padding: "7px 16px", fontSize: 14, fontWeight: 700, marginBottom: 26 }}>
-              <span style={{ width: 9, height: 9, borderRadius: "50%", background: cfg.dot, display: "inline-block" }} />
-              {result.estadoLabel}
-            </div>
-
-            {/* Pasos */}
-            <div style={{ marginBottom: 4 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#90A4AE", textTransform: "uppercase", letterSpacing: 0.9, marginBottom: 16 }}>Progreso del expediente</div>
-              {PASOS.map((paso, i) => {
-                const pasoNum = i + 1;
-                const done = pasoNum <= result.paso;
-                const active = pasoNum === result.paso;
-                const stepCfg = PASO_CONFIG[i];
-                return (
-                  <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: done ? (active ? stepCfg.dot : "#002D72") : "#EEEEEE", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, border: active ? `3px solid ${stepCfg.color}` : "3px solid transparent", boxSizing: "border-box", transition: "all 0.2s" }}>
-                        {done && !active ? "✓" : active ? "●" : ""}
-                      </div>
-                      {i < PASOS.length - 1 && (
-                        <div style={{ width: 2, height: 30, background: done && !active ? "#002D72" : "#EEEEEE", margin: "2px 0", transition: "background 0.2s" }} />
-                      )}
-                    </div>
-                    <div style={{ paddingTop: 4 }}>
-                      <div style={{ fontSize: 14, color: done ? "#263238" : "#BDBDBD", fontWeight: active ? 700 : done ? 500 : 400, marginBottom: 28, display: "flex", alignItems: "center", gap: 8 }}>
-                        {paso}
-                        {active && (
-                          <span style={{ background: stepCfg.bg, color: stepCfg.color, borderRadius: 8, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>Actual</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+      {result && result.multiples && (
+        <div style={{ background: "#E3F2FD", borderRadius: 10, padding: "12px 16px", fontSize: 13, color: "#1565C0", marginBottom: 16, fontWeight: 600 }}>
+          Encontramos {result.expedientes.length} expedientes asociados a su cédula:
         </div>
       )}
 
-      {/* Resultado — Investigación */}
-      {result && result.esInvestigacion && (
-        <div style={{ ...S.card, animation: "fadeUp 0.3s ease" }}>
-          <div style={{ background: "#E65100", padding: "20px 24px", color: "#fff" }}>
-            <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.25 }}>{result.nombre}</div>
-            {result.noExp && <div style={{ fontSize: 12, opacity: 0.75, marginTop: 3 }}>Expediente {result.noExp}</div>}
-          </div>
-          <div style={{ padding: "22px 24px" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#FFF3E0", color: "#BF360C", borderRadius: 20, padding: "7px 16px", fontSize: 14, fontWeight: 700, marginBottom: 18 }}>
-              <span style={{ width: 9, height: 9, borderRadius: "50%", background: "#FF9800", display: "inline-block" }} />
-              Su expediente requiere atención
-            </div>
-            {result.notaConsulado && (
-              <div style={{ background: "#FFF8E1", borderRadius: 10, padding: "14px 18px", fontSize: 14, color: "#455A64", borderLeft: "3px solid #FF9800", lineHeight: 1.65 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#FF9800", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Mensaje del Consulado</div>
-                {result.notaConsulado}
-              </div>
-            )}
-            <div style={{ marginTop: 16, padding: "12px 16px", background: "#F5F7FA", borderRadius: 8, fontSize: 13, color: "#546E7A" }}>
-              Para más información comuníquese al <strong>(470) 309-4360</strong> o escriba a <strong>consuldomatl@gmail.com</strong>
-            </div>
-          </div>
-        </div>
-      )}
+      {result && result.expedientes && result.expedientes.map(exp => {
+        if (exp.esInvestigacion) return <ExpedienteInvestigacion key={exp.id} exp={exp} />;
+        if (exp.esAnulado) return <ExpedienteAnulado key={exp.id} exp={exp} />;
+        return <ExpedienteCard key={exp.id} exp={exp} />;
+      })}
 
-      {/* Resultado — Anulado */}
-      {result && result.esAnulado && (
-        <div style={{ ...S.card, animation: "fadeUp 0.3s ease" }}>
-          <div style={{ background: "#37474F", padding: "20px 24px", color: "#fff" }}>
-            <div style={{ fontSize: 20, fontWeight: 800 }}>{result.nombre}</div>
-            {result.noExp && <div style={{ fontSize: 12, opacity: 0.7, marginTop: 3 }}>Expediente {result.noExp}</div>}
-          </div>
-          <div style={{ padding: "22px 24px" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#ECEFF1", color: "#546E7A", borderRadius: 20, padding: "7px 16px", fontSize: 14, fontWeight: 700, marginBottom: 16 }}>
-              <span style={{ width: 9, height: 9, borderRadius: "50%", background: "#90A4AE", display: "inline-block" }} />
-              Expediente anulado
-            </div>
-            <div style={{ fontSize: 14, color: "#546E7A", lineHeight: 1.6 }}>
-              Por favor comuníquese con el Consulado para más información:<br />
-              <strong>(470) 309-4360</strong> · <strong>consuldomatl@gmail.com</strong>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Estado vacío */}
       {!buscado && (
         <div style={{ textAlign: "center", padding: "44px 0", color: "#CFD8DC" }}>
           <div style={{ fontSize: 13, color: "#B0BEC5" }}>Ingrese su cédula para consultar el estado de su pasaporte.</div>
@@ -266,8 +284,17 @@ function PasaporteView() {
 }
 
 // ─── NOTICIAS ────────────────────────────────────────────────────────────────
-function NoticiasView({ noticias }) {
-  const [sel, setSel] = useState(null);
+function NoticiasView() {
+  const [noticias, setNoticias] = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [sel, setSel]           = useState(null);
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/noticias`)
+      .then(r => r.json())
+      .then(data => { setNoticias(data.noticias || []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
 
   if (sel) return (
     <div style={{ maxWidth: 660, margin: "0 auto", padding: "28px 18px" }}>
@@ -280,7 +307,7 @@ function NoticiasView({ noticias }) {
           <h2 style={{ fontSize: 21, fontWeight: 800, margin: "10px 0 5px", lineHeight: 1.25 }}>{sel.titulo}</h2>
           <div style={{ fontSize: 12, opacity: 0.6 }}>{sel.fecha}</div>
         </div>
-        <div style={{ padding: "24px 26px", fontSize: 15, color: "#37474F", lineHeight: 1.75 }}>{sel.cuerpo}</div>
+        <div style={{ padding: "24px 26px", fontSize: 15, color: "#37474F", lineHeight: 1.75 }}>{sel.contenido}</div>
       </div>
     </div>
   );
@@ -289,6 +316,13 @@ function NoticiasView({ noticias }) {
     <div style={{ maxWidth: 660, margin: "0 auto", padding: "32px 18px" }}>
       <h1 style={{ fontSize: 22, fontWeight: 800, color: "#002D72", margin: "0 0 5px" }}>Noticias y avisos</h1>
       <p style={{ color: "#546E7A", fontSize: 14, margin: "0 0 22px" }}>Información oficial del Consulado General en Atlanta.</p>
+
+      {loading && (
+        <div style={{ textAlign: "center", padding: "48px 0", color: "#90A4AE" }}>
+          <div style={{ fontSize: 13 }}>Cargando noticias…</div>
+        </div>
+      )}
+
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {noticias.map(n => (
           <div key={n.id} onClick={() => setSel(n)}
@@ -299,10 +333,10 @@ function NoticiasView({ noticias }) {
             <span style={{ fontSize: 10, fontWeight: 700, color: CAT_COLOR[n.categoria], textTransform: "uppercase", letterSpacing: 0.5 }}>{n.categoria}</span>
             <div style={{ fontSize: 15, fontWeight: 700, color: "#263238", margin: "4px 0 4px", lineHeight: 1.3 }}>{n.titulo}</div>
             <div style={{ fontSize: 11, color: "#90A4AE", marginBottom: 8 }}>{n.fecha}</div>
-            <p style={{ fontSize: 13, color: "#546E7A", margin: 0, lineHeight: 1.5 }}>{n.cuerpo.slice(0, 110)}…</p>
+            <p style={{ fontSize: 13, color: "#546E7A", margin: 0, lineHeight: 1.5 }}>{(n.contenido || "").slice(0, 110)}…</p>
           </div>
         ))}
-        {noticias.length === 0 && (
+        {!loading && noticias.length === 0 && (
           <div style={{ textAlign: "center", padding: "48px 0", color: "#90A4AE" }}>
             <div style={{ fontSize: 32, marginBottom: 10 }}>📭</div>
             <div style={{ fontSize: 13 }}>No hay publicaciones aún.</div>
@@ -410,7 +444,7 @@ function AdminView({ noticias, setNoticias }) {
 export default function App() {
   const isAdmin = window.location.hash === "#/admin";
   const [view, setView]         = useState("pasaporte");
-  const [noticias, setNoticias] = useState(NOTICIAS_INIT);
+  
 
   if (isAdmin) {
     return (
@@ -434,7 +468,7 @@ export default function App() {
       <Header view={view} setView={setView} />
       <main>
         {view === "pasaporte" && <PasaporteView />}
-        {view === "noticias"  && <NoticiasView noticias={noticias} />}
+        {view === "noticias"  && <NoticiasView />}
       </main>
       <footer style={{ textAlign: "center", padding: "28px 20px 40px", color: "#90A4AE", fontSize: 12, borderTop: "1px solid #E0E7EF", marginTop: 48, lineHeight: 2.2 }}>
         <strong style={{ color: "#546E7A" }}>Consulado General de la República Dominicana en Atlanta</strong><br />
