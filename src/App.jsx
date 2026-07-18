@@ -34,14 +34,14 @@ const NOTICIAS_INIT = [
     titulo: "Nuevos horarios de atención – julio 2026",
     fecha: "27 jun 2026",
     categoria: "Aviso",
-    cuerpo: "A partir del 7 de julio atenderemos lunes a viernes de 8:30 am a 3:30 pm. Los viernes únicamente con cita previa. Tel: (678) 427-0654.",
+    cuerpo: "A partir del 7 de julio atenderemos lunes a viernes de 8:30 am a 3:30 pm. Los viernes únicamente con cita previa. WhatsApp: (470) 309-4360.",
   },
   {
     id: 3,
     titulo: "Requisitos para pasaporte – actualización junio 2026",
     fecha: "10 jun 2026",
     categoria: "Trámites",
-    cuerpo: "Se acepta cédula digital como documento de identidad. Llame al (678) 427-0654 o visítenos para la lista completa de requisitos.",
+    cuerpo: "Se acepta cédula digital como documento de identidad. Contáctenos vía WhatsApp al (470) 309-4360 para la lista completa de requisitos.",
   },
 ];
 
@@ -59,7 +59,6 @@ function Header({ view, setView }) {
   const tabs = [
     { key: "pasaporte", label: "Mi Pasaporte" },
     { key: "noticias",  label: "Noticias" },
-    { key: "admin",     label: "⚙" },
   ];
   return (
     <header style={{ background: "#002D72", color: "#fff", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 62, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 14px rgba(0,0,0,0.3)" }}>
@@ -230,7 +229,7 @@ function PasaporteView() {
               </div>
             )}
             <div style={{ marginTop: 16, padding: "12px 16px", background: "#F5F7FA", borderRadius: 8, fontSize: 13, color: "#546E7A" }}>
-              Para más información comuníquese al <strong>(678) 427-0654</strong> o escriba a <strong>misantana@mirex.gob.do</strong>
+              Para más información comuníquese al <strong>(470) 309-4360</strong> o escriba a <strong>consuldomatl@gmail.com</strong>
             </div>
           </div>
         </div>
@@ -250,7 +249,7 @@ function PasaporteView() {
             </div>
             <div style={{ fontSize: 14, color: "#546E7A", lineHeight: 1.6 }}>
               Por favor comuníquese con el Consulado para más información:<br />
-              <strong>(678) 427-0654</strong> · <strong>misantana@mirex.gob.do</strong>
+              <strong>(470) 309-4360</strong> · <strong>consuldomatl@gmail.com</strong>
             </div>
           </div>
         </div>
@@ -330,14 +329,14 @@ function AdminView({ noticias, setNoticias }) {
         <p style={{ fontSize: 13, color: "#90A4AE", margin: "0 0 22px" }}>Solo para personal del Consulado</p>
         <input type="password" placeholder="PIN de acceso" value={pin}
           onChange={e => setPin(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter") { if (pin === "1844") { setAuth(true); setPinErr(false); } else setPinErr(true); } }}
+          onKeyDown={e => { if (e.key === "Enter") { if (pin === "281305") { setAuth(true); setPinErr(false); } else setPinErr(true); } }}
           style={{ ...S.input, textAlign: "center", letterSpacing: 8, border: `1.5px solid ${pinErr ? "#CE1126" : "#CFD8DC"}`, marginBottom: 8 }} />
         {pinErr && <div style={{ color: "#CE1126", fontSize: 12, marginBottom: 8 }}>PIN incorrecto</div>}
-        <button onClick={() => { if (pin === "1844") { setAuth(true); setPinErr(false); } else setPinErr(true); }}
+        <button onClick={() => { if (pin === "281305") { setAuth(true); setPinErr(false); } else setPinErr(true); }}
           style={{ width: "100%", background: "#002D72", color: "#fff", border: "none", borderRadius: 8, padding: "11px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
           Entrar
         </button>
-        <p style={{ fontSize: 11, color: "#CFD8DC", margin: "14px 0 0" }}>Pista: año de la independencia dominicana</p>
+        <p style={{ fontSize: 11, color: "#CFD8DC", margin: "14px 0 0" }}>Acceso restringido al personal autorizado.</p>
       </div>
     </div>
   );
@@ -409,8 +408,21 @@ function AdminView({ noticias, setNoticias }) {
 
 // ─── APP ROOT ────────────────────────────────────────────────────────────────
 export default function App() {
-  const [view, setView]       = useState("pasaporte");
+  const isAdmin = window.location.hash === "#/admin";
+  const [view, setView]         = useState("pasaporte");
   const [noticias, setNoticias] = useState(NOTICIAS_INIT);
+
+  if (isAdmin) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#F0F4F8", fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+        <style>{`* { box-sizing: border-box; } input, textarea, select, button { font-family: inherit; }`}</style>
+        <header style={{ background: "#002D72", color: "#fff", padding: "0 20px", display: "flex", alignItems: "center", height: 62, boxShadow: "0 2px 14px rgba(0,0,0,0.3)" }}>
+          <div style={{ fontSize: 13, fontWeight: 800 }}>Consulado General RD · Panel Interno</div>
+        </header>
+        <AdminView noticias={noticias} setNoticias={setNoticias} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", background: "#F0F4F8", fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
@@ -423,12 +435,14 @@ export default function App() {
       <main>
         {view === "pasaporte" && <PasaporteView />}
         {view === "noticias"  && <NoticiasView noticias={noticias} />}
-        {view === "admin"     && <AdminView noticias={noticias} setNoticias={setNoticias} />}
       </main>
-      <footer style={{ textAlign: "center", padding: "28px 20px 40px", color: "#90A4AE", fontSize: 12, borderTop: "1px solid #E0E7EF", marginTop: 48, lineHeight: 2 }}>
+      <footer style={{ textAlign: "center", padding: "28px 20px 40px", color: "#90A4AE", fontSize: 12, borderTop: "1px solid #E0E7EF", marginTop: 48, lineHeight: 2.2 }}>
         <strong style={{ color: "#546E7A" }}>Consulado General de la República Dominicana en Atlanta</strong><br />
-        📞 (678) 427-0654 · ✉ misantana@mirex.gob.do<br />
-        Lunes a viernes · 9:00 am – 3:00 pm
+        <a href="https://wa.me/14703094360" target="_blank" rel="noreferrer" style={{ color: "#90A4AE", textDecoration: "none" }}>💬 (470) 309-4360</a>
+        {" · "}
+        <a href="mailto:consuldomatl@gmail.com" style={{ color: "#90A4AE", textDecoration: "none" }}>✉ consuldomatl@gmail.com</a>
+        <br />
+        📷 @RDenAtlanta · ▶ @RDenAtlanta
       </footer>
     </div>
   );
