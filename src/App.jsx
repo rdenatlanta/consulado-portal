@@ -63,20 +63,8 @@ function Header({ view, setView }) {
   return (
     <header style={{ background: "#002D72", color: "#fff", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 62, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 14px rgba(0,0,0,0.3)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-        <div style={{ width: 38, height: 38, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
-          <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" width="38" height="38">
-            {/* Cuadrantes */}
-            <rect x="0" y="0" width="19" height="19" fill="#002D72"/>
-            <rect x="19" y="0" width="19" height="19" fill="#CE1126"/>
-            <rect x="0" y="19" width="19" height="19" fill="#CE1126"/>
-            <rect x="19" y="19" width="19" height="19" fill="#002D72"/>
-            {/* Cruz blanca */}
-            <rect x="16" y="0" width="6" height="38" fill="white"/>
-            <rect x="0" y="16" width="38" height="6" fill="white"/>
-            {/* Escudo simplificado - círculo azul con borde */}
-            <circle cx="19" cy="19" r="5" fill="#002D72" stroke="white" strokeWidth="1"/>
-            <text x="19" y="22" textAnchor="middle" fontSize="6" fill="white" fontWeight="bold">RD</text>
-          </svg>
+        <div style={{ width: 42, height: 42, borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: "2px solid rgba(255,255,255,0.4)" }}>
+          <img src="/icon-192.png" alt="Consulado General RD" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
         <div>
           <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 0.2, lineHeight: 1.2 }}>Consulado General RD</div>
