@@ -137,8 +137,37 @@ function ExpedienteCard({ exp }) {
 
         {/* Mensaje especial FedEx */}
         {entregado && exp.estadoRaw === "Enviado via FedEx" && (
-          <div style={{ background: "#F3E5F5", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#4A148C", marginBottom: 16, borderLeft: "3px solid #9C27B0" }}>
-            📦 Su pasaporte fue enviado vía FedEx a su dirección registrada. Esté pendiente del tracking de su envío.
+          <div style={{ background: "#F3E5F5", borderRadius: 8, padding: "14px 16px", fontSize: 13, color: "#4A148C", marginBottom: 16, borderLeft: "3px solid #9C27B0" }}>
+            <div style={{ fontWeight: 700, marginBottom: 8 }}>📦 Su pasaporte fue enviado vía FedEx</div>
+
+            {exp.fedexTracking ? (
+              <>
+                <div style={{ marginBottom: 8 }}>
+                  Número de tracking: <strong style={{ letterSpacing: 0.5 }}>{exp.fedexTracking}</strong>
+                </div>
+                <a
+                  href={`https://www.fedex.com/fedextrack/?trknbr=${exp.fedexTracking}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ display: "inline-block", background: "#4A148C", color: "#fff", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 700, textDecoration: "none", marginBottom: 12 }}
+                >
+                  Rastrear mi paquete en FedEx →
+                </a>
+                <div style={{ fontSize: 12, color: "#6A1B9A", lineHeight: 1.6 }}>
+                  Le recomendamos estar atento/a al progreso de su paquete a través de este número.<br />
+                  <strong>⚠️ Nota importante:</strong> FedEx es la empresa responsable de la entrega. Es importante que usted mismo/a le dé seguimiento al estado de su envío y, en caso necesario, coordine directamente con FedEx cualquier ajuste en la entrega (cambio de dirección, reprogramación, etc.).
+                </div>
+              </>
+            ) : exp.expedientePrincipal ? (
+              <div style={{ fontSize: 13, color: "#6A1B9A", lineHeight: 1.6 }}>
+                Su pasaporte se enviará junto al expediente de <strong>{exp.expedientePrincipal}</strong>. Esté pendiente de la notificación de envío con el número de tracking.
+              </div>
+            ) : (
+              <div style={{ fontSize: 13, color: "#6A1B9A", lineHeight: 1.6 }}>
+                Su pasaporte está siendo preparado para envío. Pronto recibirá el número de tracking.<br />
+                <strong>⚠️ Nota importante:</strong> FedEx es la empresa responsable de la entrega. Coordine directamente con FedEx cualquier ajuste en la entrega.
+              </div>
+            )}
           </div>
         )}
 
