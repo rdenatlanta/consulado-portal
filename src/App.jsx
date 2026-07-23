@@ -135,6 +135,18 @@ function ExpedienteCard({ exp }) {
           </div>
         )}
 
+        {/* Mensaje: Preparando envío FedEx (paso 4, aún no enviado) */}
+        {exp.esPreparandoEnvio && (
+          <div style={{ background: "#EDE7F6", borderRadius: 8, padding: "12px 16px", fontSize: 13, color: "#4527A0", marginBottom: 16, borderLeft: "3px solid #7E57C2", lineHeight: 1.6 }}>
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>📦 Preparando envío vía FedEx</div>
+            {exp.esEnvioConjunto && exp.expedientePrincipal ? (
+              <>Su pasaporte se enviará junto al expediente de <strong>{exp.expedientePrincipal}</strong>. Recibirá el número de tracking cuando el paquete sea despachado.</>
+            ) : (
+              <>Su pasaporte está listo y será despachado próximamente. Recibirá el número de tracking cuando el paquete salga.</>
+            )}
+          </div>
+        )}
+
         {/* Mensaje especial FedEx */}
         {entregado && exp.estadoRaw === "Enviado via FedEx" && (
           <div style={{ background: "#F3E5F5", borderRadius: 8, padding: "14px 16px", fontSize: 13, color: "#4A148C", marginBottom: 16, borderLeft: "3px solid #9C27B0" }}>
@@ -158,9 +170,10 @@ function ExpedienteCard({ exp }) {
                   <strong>⚠️ Nota importante:</strong> FedEx es la empresa responsable de la entrega. Es importante que usted mismo/a le dé seguimiento al estado de su envío y, en caso necesario, coordine directamente con FedEx cualquier ajuste en la entrega (cambio de dirección, reprogramación, etc.).
                 </div>
               </>
-            ) : exp.expedientePrincipal ? (
+            ) : exp.esEnvioConjunto && exp.expedientePrincipal ? (
               <div style={{ fontSize: 13, color: "#6A1B9A", lineHeight: 1.6 }}>
-                Su pasaporte se enviará junto al expediente de <strong>{exp.expedientePrincipal}</strong>. Esté pendiente de la notificación de envío con el número de tracking.
+                Su pasaporte fue enviado junto al expediente de <strong>{exp.expedientePrincipal}</strong>. El tracking del envío está asociado a ese expediente.<br />
+                <strong>⚠️ Nota importante:</strong> FedEx es la empresa responsable de la entrega. Coordine directamente con FedEx cualquier ajuste en la entrega.
               </div>
             ) : (
               <div style={{ fontSize: 13, color: "#6A1B9A", lineHeight: 1.6 }}>
